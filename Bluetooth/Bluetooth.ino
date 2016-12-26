@@ -1,4 +1,5 @@
-char order;
+char currentOrder;
+char lastOrder;
 unsigned long lastTimestamp;
 int currentTemperature;
 
@@ -11,6 +12,8 @@ void setup() {
   // put your setup code here, to run once:
   Serial.begin(9600);
 
+  currentOrder = '\0';
+  lastOrder = '\0';
   currentTemperature = 0;
   lastTimestamp = millis();
 
@@ -36,17 +39,74 @@ void checkTemperature() {
   }  
 }
 
+void accelerate() {
+  digitalWrite(in1, LOW);
+  digitalWrite(in2, HIGH);
+  digitalWrite(in3, LOW);
+  digitalWrite(in4, HIGH);
+}
+
+void slowDown() {
+  digitalWrite(in1, HIGH);
+  digitalWrite(in2, LOW);
+  digitalWrite(in3, HIGH);
+  digitalWrite(in4, LOW);
+}
+
+void turnLeft() {
+  digitalWrite(in1, HIGH);
+  digitalWrite(in2, LOW);
+  digitalWrite(in3, LOW);
+  digitalWrite(in4, HIGH);
+}
+
+void turnRight() {
+  digitalWrite(in1, LOW);
+  digitalWrite(in2, HIGH);
+  digitalWrite(in3, HIGH);
+  digitalWrite(in4, LOW);
+}
+
+void dontMove() {
+  digitalWrite(in1, LOW);
+  digitalWrite(in2, LOW);
+  digitalWrite(in3, LOW);
+  digitalWrite(in4, LOW);
+}
+
+void changeState() {
+  if (currentOrder == 'l') {
+    Serial.print("-------");
+    Serial.println(currentOrder);  
+    turnLeft();
+  } else if (currentOrder == 'r') {
+    Serial.print("-------");
+    Serial.println(currentOrder);  
+    turnRight();
+  } else if (currentOrder == 'a') {
+    Serial.print("-------");
+    Serial.println(currentOrder);
+    accelerate();
+  } else if (currentOrder == 'b') {
+    Serial.print("-------");
+    Serial.println(currentOrder);
+    slowDown();
+  } else if (currentOrder == 's') {
+    Serial.print("-------");
+    Serial.println(currentOrder);
+    dontMove();
+  }
+}
+
 void handleOrders() {
   if (Serial.available()) {
-    order = Serial.read();
-    if (strcmp(order, 'l')) {
-
-    } else if (strcmp(order, 'r')) {
-      
-    } else if (strcmp(order, 'a')) {
-      
-    } else if (strcmp(order, 's')) {
-      
+    currentOrder = Serial.read();
+    Serial.print("New Order - ");
+    Serial.println(currentOrder);
+    if (currentOrder != lastOrder) {
+      Serial.println("Now Change");
+      changeState();
+      lastOrder = currentOrder;
     }
   }
 }
